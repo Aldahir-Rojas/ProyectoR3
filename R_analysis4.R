@@ -139,7 +139,7 @@ desvitotalaccz
 
 
 mediatotalaccxyz<-cbind(mediatotalaccx,mediatotalaccy,mediatotalaccz)
-mediaboaccxyz
+mediatotalaccxyz
 
 promtotalaccxyz<-apply(mediatotalaccxyz,2,mean)
 
@@ -150,9 +150,13 @@ promdesvitotalaccxyz<-apply(desvitotalaccxyz,2,mean)
 promdesviboaccxyz
 
 
+promdesvitotalaccxyz
+promtotalaccxyz
+
+promfinal<-rbind(promdesvitotalaccxyz,promtotalaccxyz)
 
 
-
+write.table(promfinal,"./data/final.txt")
 
 
 
