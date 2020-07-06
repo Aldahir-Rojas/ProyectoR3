@@ -156,8 +156,6 @@ promtotalaccxyz
 promfinal<-rbind(promdesvitotalaccxyz,promtotalaccxyz)
 
 
-write.table(promfinal,"./data/final.txt")
-
 
 
 
