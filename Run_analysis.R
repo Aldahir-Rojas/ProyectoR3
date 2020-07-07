@@ -15,523 +15,81 @@ trainy<-read.table("./dataUCI/train/y_train.txt")
 testx<-read.table("./dataUCI/test/X_test.txt")
 testy<-read.table("./dataUCI/test/y_test.txt")
 
+#leyendo sujetos
+subjectrain<- read.table("./dataUCI/train/subject_train.txt")
+subjectest<- read.table("./dataUCI/test/subject_test.txt")
 
-#### media ####
+#leyendo acividades
+activity<-read.table("./dataUCI/activity_labels.txt")
 
+#leyendo features
+features<-read.table("./dataUCI/features.txt")
+head(features)
+nrow(features)
 
+#juntando los valores
+subjectotal<- rbind(subjectest,subjectrain)
 
+nrow(subjectotal)
 
-dfx<-cbind(trainx,trainy)
-colnames(dfx)[562]<-"y"
+# uniendo los valores de prueba y entrenamiento X
+X <- rbind(testx,trainx)
 
+#uniendo los valores de prueba y entrenamiento Y
+Y <- rbind(testy,trainy)
 
+mergedata<- cbind(subjectotal,activity=rep(1,10299), X, Y)
 
-vec<-with(dfx,tapply(dfx[,1],y, mean))
-for (i in 2:561){
+colnames(mergedata)[1]<-"subject"
+colnames(mergedata)[564]<-"subject2"
+
+#Asignando los nombres a los datos
+
+for (i in 1:nrow(mergedata)) {
+  if(mergedata$subject2[i]==1){
+    mergedata$activity[i]<-"WALKING"
+  }
+  if(mergedata$subject2[i]==2){
+    mergedata$activity[i]<-"WALKING_UPSTAIRS"
+  }
+  if(mergedata$subject2[i]==3){
+    mergedata$activity[i]<-"WALKING_DOWNSTAIRS"
+  }
+  if(mergedata$subject2[i]==4){
+    mergedata$activity[i]<-"SITTING"
+  }
+  if(mergedata$subject2[i]==5){
+    mergedata$activity[i]<-"STANDING"
+  }
+  if(mergedata$subject2[i]==6){
+    mergedata$activity[i]<-"LAYING"
+  }
+  print(i)
   
-  vec<-cbind(vec,with(dfx,tapply(dfx[,i],y, mean)))
+}
+
+
+#asignando nombre a las columnas
+
+for (i in 3:563) {
+  colnames(mergedata)[i]<-features$V2[i-2]
   
 }
 
-mediaX<-vec
-mediaXtrain<-mediaX
+#ordenando
 
+library(dplyr)
 
+mergedata<-arrange(mergedata,subject,activity)
 
-dfx2<-cbind(testx,testy)
-colnames(dfx2)[562]<-"y"
 
-vec<-with(dfx2,tapply(dfx2[,1],y, mean))
-for (i in 2:561){
-  
-  vec<-cbind(vec,with(dfx2,tapply(dfx2[,i],y, mean)))
-  
-}
-mediaXtest<-vec
+head(mergedata[,1:5],100)
 
-mediaXY<-rbind(mediaXtrain,mediaXtest)
+features$V2
 
+colnames(mergedata)
 
-#### desviasion estandar ####
-
-
-vec<-with(dfx,tapply(dfx[,1],y, sd))
-vec
-for (i in 2:561){
-  
-  vec<-cbind(vec,with(dfx,tapply(dfx[,i],y, sd)))
-  
-}
-dsXtrain<-vec
-
-
-vec<-with(dfx2,tapply(dfx2[,1],y, sd))
-for (i in 2:561){
-  
-  vec<-cbind(vec,with(dfx2,tapply(dfx2[,i],y,sd)))
-  
-}
-dsXtest<-vec
-
-dsXY<-rbind(dsXtrain,dsXtest)
-dsXY[,1:3]
-
-
-
-#### leer los archivos #### 
-
-#train 
-
-boaccxtrain<-read.table("./dataUCI/train/Inertial Signals/body_acc_x_train.txt")
-boaccytrain<-read.table("./dataUCI/train/Inertial Signals/body_acc_y_train.txt")
-boaccztrain<-read.table("./dataUCI/train/Inertial Signals/body_acc_z_train.txt")
-
-# test
-
-boaccxtest<-read.table("./dataUCI/test/Inertial Signals/body_acc_x_test.txt")
-boaccytest<-read.table("./dataUCI/test/Inertial Signals/body_acc_y_test.txt")
-boaccztest<-read.table("./dataUCI/test/Inertial Signals/body_acc_z_test.txt")
-
-
-#### media ####
-
-# eje x
-
-dfx<-rbind(boaccxtrain,boaccxtest)
-dfx
-
-
-length(dfx[,1])
-dfx[,1:2]
-
-#vec<-sapply(dfx[,1],mean)
-vec<-mean(dfx[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfx[,i]))
-  
-}
-nrow(vec)
-mediaboaccx<-vec
-
-#eje y 
-
-dfy<-rbind(boaccytrain,boaccytest)
-dfy
-
-
-vec<-mean(dfy[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfy[,i]))
-  
-}
-nrow(vec)
-mediaboaccy<-vec
-
-#eje z
-
-dfz<-rbind(boaccztrain,boaccztest)
-dfz
-
-
-vec<-mean(dfz[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfz[,i]))
-  
-}
-nrow(vec)
-mediaboaccz<-vec
-
-
-#### desviasion estandar ####
-# eje x
-
-dfx<-rbind(boaccxtrain,boaccxtest)
-dfx
-
-
-length(dfx[,1])
-dfx[,1:2]
-
-#vec<-sapply(dfx[,1],mean)
-vec<-sd(dfx[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfx[,i]))
-  
-}
-nrow(vec)
-desviboaccx<-vec
-
-#eje y 
-
-dfy<-rbind(boaccytrain,boaccytest)
-dfy
-
-
-vec<-sd(dfy[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfy[,i]))
-  
-}
-nrow(vec)
-desviboaccy<-vec
-
-#eje z
-
-dfz<-rbind(boaccztrain,boaccztest)
-dfz
-
-head(dfz,4)
-
-vec<-sd(dfz[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfz[,i]))
-  
-}
-nrow(vec)
-desviboaccz<-vec
-
-#valores
-
-mediaboaccx
-mediaboaccy
-mediaboaccz
-desviboaccx
-desviboaccy
-desviboaccz
-
-#### segunda data ####
-
-
-mediaboaccxyz<-cbind(mediaboaccx,mediaboaccy,mediaboaccz)
-mediaboaccxyz
-
-promboaccxyz<-apply(mediaboaccxyz,2,mean)
-
-desviboaccxyz<-cbind(desviboaccx,desviboaccy,desviboaccz)
-desviboaccxyz
-
-promdesviboaccxyz<-apply(desviboaccxyz,2,mean)
-promdesviboaccxyz
-
-
-#### leer los archivos #### 
-
-#train 
-
-bogyroxtrain<-read.table("./dataUCI/train/Inertial Signals/body_gyro_x_train.txt")
-bogyroytrain<-read.table("./dataUCI/train/Inertial Signals/body_gyro_y_train.txt")
-bogyroztrain<-read.table("./dataUCI/train/Inertial Signals/body_gyro_z_train.txt")
-
-# test
-
-bogyroxtest<-read.table("./dataUCI/test/Inertial Signals/body_gyro_x_test.txt")
-bogyroytest<-read.table("./dataUCI/test/Inertial Signals/body_gyro_y_test.txt")
-bogyroztest<-read.table("./dataUCI/test/Inertial Signals/body_gyro_z_test.txt")
-
-
-#### media ####
-
-# eje x
-
-dfx<-rbind(bogyroxtrain,bogyroxtest)
-dfx
-
-
-length(dfx[,1])
-dfx[,1:2]
-
-#vec<-sapply(dfx[,1],mean)
-vec<-mean(dfx[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfx[,i]))
-  
-}
-nrow(vec)
-mediabogyrox<-vec
-
-#eje y 
-
-dfy<-rbind(bogyroytrain,bogyroytest)
-dfy
-
-
-vec<-mean(dfy[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfy[,i]))
-  
-}
-nrow(vec)
-mediabogyroy<-vec
-
-#eje z
-
-dfz<-rbind(bogyroztrain,bogyroztest)
-dfz
-
-
-vec<-mean(dfz[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfz[,i]))
-  
-}
-nrow(vec)
-mediabogyroz<-vec
-
-
-#### desviasion estandar ####
-# eje x
-
-dfx<-rbind(bogyroxtrain,bogyroxtest)
-dfx
-
-
-length(dfx[,1])
-dfx[,1:2]
-
-#vec<-sapply(dfx[,1],mean)
-vec<-sd(dfx[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfx[,i]))
-  
-}
-nrow(vec)
-desvibogyrox<-vec
-
-#eje y 
-
-dfy<-rbind(bogyroytrain,bogyroytest)
-dfy
-
-
-vec<-sd(dfy[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfy[,i]))
-  
-}
-nrow(vec)
-desvibogyroy<-vec
-
-#eje z
-
-dfz<-rbind(bogyroztrain,bogyroztest)
-dfz
-
-head(dfz,4)
-
-vec<-sd(dfz[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfz[,i]))
-  
-}
-nrow(vec)
-desvibogyroz<-vec
-
-#valores
-
-mediabogyrox
-mediabogyroy
-mediabogyroz
-desvibogyrox
-desvibogyroy
-desvibogyroz
-
-#### segunda data ####
-
-
-mediabogyroxyz<-cbind(mediabogyrox,mediabogyroy,mediabogyroz)
-mediabogyroxyz
-
-prombogyroxyz<-apply(mediabogyroxyz,2,mean)
-
-desvibogyroxyz<-cbind(desvibogyrox,desvibogyroy,desvibogyroz)
-desvibogyroxyz
-
-promdesvibogyroxyz<-apply(desvibogyroxyz,2,mean)
-promdesvibogyroxyz
-
-
-#### leer los archivos #### 
-
-#train 
-
-totalaccxtrain<-read.table("./dataUCI/train/Inertial Signals/total_acc_x_train.txt")
-totalaccytrain<-read.table("./dataUCI/train/Inertial Signals/total_acc_y_train.txt")
-totalaccztrain<-read.table("./dataUCI/train/Inertial Signals/total_acc_z_train.txt")
-
-# test
-
-totalaccxtest<-read.table("./dataUCI/test/Inertial Signals/total_acc_x_test.txt")
-totalaccytest<-read.table("./dataUCI/test/Inertial Signals/total_acc_y_test.txt")
-totalaccztest<-read.table("./dataUCI/test/Inertial Signals/total_acc_z_test.txt")
-
-#### media ####
-
-# eje x
-
-dfx<-rbind(totalaccxtrain,totalaccxtest)
-dfx
-
-
-length(dfx[,1])
-dfx[,1:2]
-
-#vec<-sapply(dfx[,1],mean)
-vec<-mean(dfx[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfx[,i]))
-  
-}
-nrow(vec)
-mediatotalaccx<-vec
-
-#eje y 
-
-dfy<-rbind(totalaccytrain,totalaccytest)
-dfy
-
-
-vec<-mean(dfy[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfy[,i]))
-  
-}
-nrow(vec)
-mediatotalaccy<-vec
-
-#eje z
-
-dfz<-rbind(totalaccztrain,totalaccztest)
-dfz
-
-
-vec<-mean(dfz[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,mean(dfz[,i]))
-  
-}
-nrow(vec)
-mediatotalaccz<-vec
-
-
-#### desviasion estandar ####
-# eje x
-
-dfx<-rbind(totalaccxtrain,totalaccxtest)
-dfx
-
-
-length(dfx[,1])
-dfx[,1:2]
-
-#vec<-sapply(dfx[,1],mean)
-vec<-sd(dfx[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfx[,i]))
-  
-}
-nrow(vec)
-desvitotalaccx<-vec
-
-#eje y 
-
-dfy<-rbind(totalaccytrain,totalaccytest)
-dfy
-
-
-vec<-sd(dfy[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfy[,i]))
-  
-}
-nrow(vec)
-desvitotalaccy<-vec
-
-#eje z
-
-dfz<-rbind(totalaccztrain,totalaccztest)
-dfz
-
-head(dfz,4)
-
-vec<-sd(dfz[,1])
-vec
-for (i in 2:128){
-  
-  vec<-rbind(vec,sd(dfz[,i]))
-  
-}
-nrow(vec)
-desvitotalaccz<-vec
-
-#valores
-
-mediatotalaccx
-mediatotalaccy
-mediatotalaccz
-desvitotalaccx
-desvitotalaccy
-desvitotalaccz
-
-#### segunda data ####
-
-
-mediatotalaccxyz<-cbind(mediatotalaccx,mediatotalaccy,mediatotalaccz)
-mediatotalaccxyz
-
-promtotalaccxyz<-apply(mediatotalaccxyz,2,mean)
-
-desvitotalaccxyz<-cbind(desvitotalaccx,desvitotalaccy,desvitotalaccz)
-desviboaccxyz
-
-promdesvitotalaccxyz<-apply(desvitotalaccxyz,2,mean)
-promdesviboaccxyz
-
-
-promdesvitotalaccxyz
-promtotalaccxyz
-
-promfinal<-rbind(promdesvitotalaccxyz,promtotalaccxyz)
-
-
-
-write.table(promfinal,"./data/final.txt")
-
-
-
+write.table(mergedata, "./data/final.txt")
 
 
 
