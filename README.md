@@ -26,7 +26,7 @@ run_analysis.R
 
 CodeBook.md
 
--Informacion sobre todos los datos
+- Informacion sobre todos los datos
 
 
 
